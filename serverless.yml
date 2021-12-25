@@ -1,0 +1,34 @@
+service: aws-nodejs-user-roles
+
+frameworkVersion: "2 || 3"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: us-east-2
+  lambdaHashingVersion: 20201221
+
+functions:
+  test:
+    handler: resolvers/test.test
+    events:
+      - http:
+          method: get
+          path: "/test"
+
+resources:
+  Resources:
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:service}-cognito-user-pool
+        AliasAttributes:
+          - email
+        UsernameAttributes:
+          - email
+    CognitoClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        GenerateSecret: false
+        ClientName: ${self:service}-cognito-client
+        UserPoolId: !Ref CognitoUserPool
